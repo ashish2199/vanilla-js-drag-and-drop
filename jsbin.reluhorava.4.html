@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2024 by anonymous (http://jsbin.com/reluhorava/4/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+<style id="jsbin-css">
+.app {
+  display: flex;
+  margin: 10px;
+}
+
+.drop-target {
+  color: black;
+  border: 1px solid black;
+  height: 60px;
+  width: 60px;
+  margin: 5px;
+  background: rgba(0,0,255,0.2);
+}
+
+.drop-zone {
+  border: 1px solid black;
+  height: 500px;
+  width: 250px;
+  margin: 5px;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+}
+</style>
+</head>
+<body>
+  <form id="operationForm">
+    Move/Copy:
+    <br/>
+    <input type="radio" id="moveOp" name="operation" value="move" checked="true">
+    <label for="html">Move</label><br>
+    <input type="radio" id="copyOp" name="operation" value="copy">
+    <label for="css">Copy</label><br>
+  </form>
+<div class="app">
+  <div id="drop-zone-1" class="drop-zone">Dropzone 1
+    <div id="target-1" class="drop-target" draggable="true" >Target 1</div>
+    <div id="target-2" class="drop-target" draggable="true">Target 2</div>
+    <div id="target-3" class="drop-target" draggable="true">Target 3</div>
+    <div id="target-4" class="drop-target" draggable="true">Target 4</div>
+  </div>
+  <div id="drop-zone-2" class="drop-zone">Dropzone 2
+    <div id="target-5" class="drop-target" draggable="true">Target 5</div>
+    <div id="target-6" class="drop-target" draggable="true">Target 6</div>
+    
+  </div>
+
+  </div>
+<script id="jsbin-javascript">
+window.addEventListener("DOMContentLoaded", () => {
+    // Get the element by id
+    
+  const dropTargetElements = 
+        [...document.querySelectorAll(".drop-target")];
+  
+  dropTargetElements.forEach(elem=> {
+    elem.addEventListener("dragstart", dragstartHandler);
+  })
+  
+  const dropZoneElements = 
+        [...document.querySelectorAll(".drop-zone")];
+  
+  dropZoneElements.forEach(elem=> {
+    elem.addEventListener("drop", dropHandler);
+    elem.addEventListener("dragover", dragoverHandler);
+  })
+  
+});
+
+function dragstartHandler(evt){
+  const dragTargetId = evt.target.id;
+  evt.dataTransfer.setData("text/plain", dragTargetId);
+  evt.dataTransfer.effectAllowed = "move";
+  console.log('dragging dragTargetId= '+ dragTargetId);
+}
+
+function dropHandler(evt){
+  evt.preventDefault();
+  evt.stopPropagation();
+  const dragTargetId = evt.dataTransfer.getData("text/plain");
+  const dragContainerId = evt.target.id;
+  if(evt.target.id === evt.currentTarget.id){
+    if(dragTargetId && dragContainerId){
+      console.log("container: "+dragContainerId+" target: "+dragTargetId);
+      const targetElement = document.getElementById(dragTargetId);
+      const containerElement = document.getElementById(dragContainerId);
+      
+      const operation = getOperationType();
+      if(operation === 'move'){
+        moveElement(containerElement, targetElement)
+      }
+      if(operation === 'copy'){
+        copyElement(containerElement, targetElement);
+      }
+    }
+  }
+}
+
+function getOperationType(){
+  const form = document.getElementById("operationForm");
+  return form.elements["operation"].value;
+}
+
+function dragoverHandler(ev) {
+  ev.preventDefault();
+}
+
+function moveElement(containerElement, targetElement){
+  console.log(containerElement.id, targetElement.id);
+  containerElement.append(targetElement);
+}
+
+function copyElement(containerElement, targetElement){ 
+  const nodeCopy = targetElement.cloneNode(true);
+  nodeCopy.addEventListener("dragstart", dragstartHandler);
+  nodeCopy.id = targetElement.id+"_1";
+  containerElement.append(nodeCopy);
+}
+
+</script>
+</body>
+</html>
